@@ -21,6 +21,7 @@ def detect_mildiou(image_path):
 
     # Convertit en niveaux de gris et applique un seuil pour détecter les taches sombres
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (5,5),0)
     _, threshold = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY_INV)
 
     print("Traitement terminé, affichage...")  # ← 4. Avant l'affichage
