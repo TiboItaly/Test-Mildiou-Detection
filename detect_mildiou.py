@@ -19,19 +19,31 @@ def detect_mildiou(image_path):
 
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-    # Convertit en niveaux de gris et applique un seuil pour détecter les taches sombres
+    # Convertit en niveaux de gris
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    # Ajoute un flou gaussien avant le seuil
     gray = cv2.GaussianBlur(gray, (5,5),0)
-    _, threshold = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY_INV)
+    
+    # applique un seuil pour détecter les taches sombres
+    # _, threshold = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY_INV)
 
-    print("Traitement terminé, affichage...")  # ← 4. Avant l'affichage
+    # utiliser la méthode d’Otsu pour un seuil automatique :
+    _, threshold = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
     # Trouve les contours des taches
     contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+    # Filtrage des petits contours
+    min_area = 100
+    filtered_contours = [c for c in contours if cv2.contourArea(c) > min_area]
+
     # Dessine les contours sur l'image originale
     result = img_rgb.copy()
-    cv2.drawContours(result, contours, -1, (0, 255, 0), 2)
+    cv2.drawContours(result, filtered_contours, -1, (0, 255, 0), 2)
+
+    print("Traitement terminé, affichage...")  # ← 4. Avant l'affichage
+
 
     # Affiche les résultats
     plt.figure(figsize=(10, 5))
